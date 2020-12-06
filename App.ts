@@ -38,12 +38,13 @@ export class App {
             if (!req.body.hasOwnProperty("url") || !req.body.url) {
                 res.send({ "status": "error", "message": "url parameter is required and can't be empty" })
             } else {
-                const { url } = req.body;
+                const { url, width, height } = req.body;
+                const host = `${req.protocol}://${req.get('host')}`;
 
-                await PuppeteerClient.initPage();
+                await PuppeteerClient.initPage(width, height);
                 const screenshotUrl = await PuppeteerClient.doScreenshot(url);
 
-                res.send({ "status": "success", "message": "Request received", "url": screenshotUrl })
+                res.send({ "status": "success", "url": `${host}/screenshot/${screenshotUrl}` })
             }
         });
     }

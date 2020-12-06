@@ -15,7 +15,7 @@ export class PuppeteerClient {
         return this.mInstance;
     }
 
-    static async initPage() {
+    static async initPage(width?: number, height?: number) {
         this.browser = await puppeteer.launch({
             headless: true,
             args: [
@@ -24,10 +24,10 @@ export class PuppeteerClient {
             ]
         });
         this.page = await this.browser.newPage();
-        
+
         const viewportOptions = {
-            "width": 1280,
-            "height": 800,
+            "width": Number(width) || 1280,
+            "height": Number(height) || 800,
             "deviceScaleFactor": 1,
         }
 
