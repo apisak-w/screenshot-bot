@@ -1,6 +1,6 @@
 .env
 *.js
 *.js.map
-screenshots/**.png
+**.png
 node_modules
 .DS_Store
