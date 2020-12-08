@@ -15,7 +15,12 @@ export class PuppeteerClient {
         return this.mInstance;
     }
 
-    static async initPage(width?: number, height?: number) {
+    static async listPages() {
+        const pages = await this.browser.pages();
+        return pages;
+    }
+
+    static async initBrowser() {
         this.browser = await puppeteer.launch({
             headless: true,
             args: [
@@ -23,6 +28,11 @@ export class PuppeteerClient {
                 '--disable-setuid-sandbox',
             ]
         });
+    }
+
+    static async initPage(width?: number, height?: number) {
+        await this.initBrowser();
+
         this.page = await this.browser.newPage();
         
         const viewportOptions = {
@@ -30,7 +40,7 @@ export class PuppeteerClient {
             "height": Number(height) || 800,
             "deviceScaleFactor": 1,
         }
-        
+
         console.log("[PuppeteerClient] Creating new page with options: ", viewportOptions);
 
         await this.page.setViewport(viewportOptions);
@@ -38,17 +48,24 @@ export class PuppeteerClient {
         return this.page;
     }
 
-    static async doScreenshot(url: string): Promise<string> {
-        console.log("[PuppeteerClient] Capturing screenshot of url: ", url);
-
-        const filename = `Screenshot-${Date.now()}.png`;
-        const screenshotOptions = {
-            path: `./screenshots/${filename}`
-        };
-
-        await this.page.goto(url);
-        await this.page.screenshot(screenshotOptions);
-
-        return filename;
+    static async doScreenshot(url: string): Promise<string | any> {
+        try {
+            console.log("[PuppeteerClient] Capturing screenshot of url: ", url);
+    
+            const filename = `Screenshot-${Date.now()}.png`;
+            const screenshotOptions = {
+                path: `./screenshots/${filename}`
+            };
+    
+            await this.page.goto(url);
+            await this.page.screenshot(screenshotOptions);
+    
+            await this.browser.close();
+    
+            return filename;
+        } catch (error) {
+            console.error("[PuppeteerClient] Error while capturing screenshot of url: ", url, " with error: ", error);
+            return error;
+        }
     }
 }
